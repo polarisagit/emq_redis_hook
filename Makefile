@@ -1,5 +1,5 @@
-PROJECT = emq_web_hook
-PROJECT_DESCRIPTION = EMQ Webhook Plugin
+PROJECT = emq_redis_hook
+PROJECT_DESCRIPTION = EMQ Redis Hook Plugin
 PROJECT_VERSION = 2.3.11
 
 DEPS = eredis ecpool clique
