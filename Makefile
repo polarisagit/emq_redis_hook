@@ -2,8 +2,9 @@ PROJECT = emq_web_hook
 PROJECT_DESCRIPTION = EMQ Webhook Plugin
 PROJECT_VERSION = 2.3.11
 
-DEPS = jsx clique
-dep_jsx    = git https://github.com/talentdeficit/jsx v2.8.3
+DEPS = eredis ecpool clique
+dep_eredis = git https://github.com/emqtt/eredis master
+dep_ecpool = git https://github.com/emqtt/ecpool master
 dep_clique = git https://github.com/emqtt/clique v0.3.10
 
 BUILD_DEPS = emqttd cuttlefish
@@ -26,4 +27,4 @@ include erlang.mk
 app:: rebar.config
 
 app.config::
-	./deps/cuttlefish/cuttlefish -l info -e etc/ -c etc/emq_redis_hook.conf -i priv/emq_redis_hook.schema -d data
+	deps/cuttlefish/cuttlefish -l info -e etc/ -c etc/emq_redis_hook.conf -i priv/emq_redis_hook.schema -d data
