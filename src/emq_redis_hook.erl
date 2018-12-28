@@ -55,17 +55,15 @@ on_client_connected(0, Client = #mqtt_client{client_id = ClientId, username = Us
     send_redis_request(Params),
     {ok, Client};
 
-    Key = application:get_env(?APP, key, "message") + ClientId,
-    ?LOG(debug, "on_client_connected key: ~p ",  Key),
-    case emq_redis_hook_cli:q(["SET", Key, "true"]) of
-    {ok, _} ->
-    ok;
-    {error, Reason} ->
-    ?LOG(error, "Redis lpush error: ~p", [Reason]), ok
-    end;
+    send_redis_request_value("ture", ClientId),
+    {ok, Client};
 
 on_client_connected(_, Client = #mqtt_client{}, _Env) ->
     {ok, Client}.
+
+
+
+
 
 %%--------------------------------------------------------------------
 %% Client disconnected
@@ -84,14 +82,8 @@ on_client_disconnected(Reason, _Client = #mqtt_client{client_id = ClientId, user
     send_redis_request(Params),
     ok;
 
-    Key = application:get_env(?APP, key, "message") + ClientId,
-    ?LOG(debug, "on_client_connected key: ~p ",  Key),
-    case emq_redis_hook_cli:q(["SET", Key, "false"]) of
-    {ok, _} ->
+    send_redis_request_value("false", ClientId),
     ok;
-    {error, Reason} ->
-    ?LOG(error, "Redis lpush error: ~p", [Reason]), ok
-    end;
 
 on_client_disconnected(Reason, _Client, _Env) ->
     ?LOG(error, "Client disconnected, cannot encode reason: ~p", [Reason]),
@@ -260,6 +252,17 @@ send_redis_request(Params) ->
         {error, Reason} ->
       ?LOG(error, "Redis lpush error: ~p", [Reason]), ok
     end.
+
+send_redis_request_value(Value, ClientId) ->
+  ?LOG(debug, "Value: ~p ", [Value]),
+  Key = application:get_env(?APP, key, "message")+ ClientId,
+  ?LOG(debug, "on_client_connected key: ~p ",  [Key]),
+  case emq_redis_hook_cli:q(["SET", Key, Value]) of
+    {ok, _} ->
+      ok;
+    {error, Reason} ->
+      ?LOG(error, "Redis lpush error: ~p", [Reason]), ok
+  end.
 
 
 parse_rule(Rules) ->
