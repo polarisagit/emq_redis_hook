@@ -48,13 +48,12 @@ unload() ->
 %%--------------------------------------------------------------------
 
 on_client_connected(0, Client = #mqtt_client{client_id = ClientId, username = Username}, _Env) ->
-    Params = [{action, client_connected},
-              {client_id, ClientId},
-              {username, Username},
-              {conn_ack, 0}],
-    send_redis_request(Params),
-    {ok, Client};
-
+%    Params = [{action, client_connected},
+%             {client_id, ClientId},
+%              {username, Username},
+%              {conn_ack, 0}],
+%    ?LOG(info, "on_client_connected: ~s ",  [ClientId]),
+%    Clientid = ClientId,
     send_redis_request_value("ture", ClientId),
     {ok, Client};
 
@@ -75,13 +74,10 @@ on_client_disconnected({shutdown, Reason}, Client, _Env) when is_atom(Reason) ->
     on_client_disconnected(Reason, Client, _Env);
 on_client_disconnected(Reason, _Client = #mqtt_client{client_id = ClientId, username = Username}, _Env)
     when is_atom(Reason) ->
-    Params = [{action, client_disconnected},
-              {client_id, ClientId},
-              {username, Username},
-              {reason, Reason}],
-    send_redis_request(Params),
-    ok;
-
+%    Params = [{action, client_disconnected},
+%              {client_id, ClientId},
+%              {username, Username},
+%              {reason, Reason}],
     send_redis_request_value("false", ClientId),
     ok;
 
@@ -254,10 +250,11 @@ send_redis_request(Params) ->
     end.
 
 send_redis_request_value(Value, ClientId) ->
-  ?LOG(debug, "Value: ~p ", [Value]),
-  Key = application:get_env(?APP, key, "message")+ ClientId,
-  ?LOG(debug, "on_client_connected key: ~p ",  [Key]),
-  case emq_redis_hook_cli:q(["SET", Key, Value]) of
+  Key = application:get_env(?APP, key, "emqmessage"),
+  Keycon = Key++ClientId,
+  %Keycon = string:concat(KeyStr, ClientId),
+  %Keycon = lists:append(Key, ClientId),
+  case emq_redis_hook_cli:q(["SET", Keycon, Value]) of
     {ok, _} ->
       ok;
     {error, Reason} ->
