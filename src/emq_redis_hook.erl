@@ -52,9 +52,9 @@ on_client_connected(0, Client = #mqtt_client{client_id = ClientId, username = Us
 %             {client_id, ClientId},
 %              {username, Username},
 %              {conn_ack, 0}],
-%    ?LOG(info, "on_client_connected: ~s ",  [ClientId]),
-%    Clientid = ClientId,
-    send_redis_request_value("ture", ClientId),
+    ?LOG(info, "on_client_connected: ~s ",  [ClientId]),
+    send_redis_request_value("true", ClientId),
+    add_redis_client_value(ClientId),
     {ok, Client};
 
 on_client_connected(_, Client = #mqtt_client{}, _Env) ->
@@ -250,15 +250,37 @@ send_redis_request(Params) ->
     end.
 
 send_redis_request_value(Value, ClientId) ->
-  Key = application:get_env(?APP, key, "emqmessage"),
-  Keycon = Key++ClientId,
-  %Keycon = string:concat(KeyStr, ClientId),
-  %Keycon = lists:append(Key, ClientId),
-  case emq_redis_hook_cli:q(["SET", Keycon, Value]) of
+  %Key = application:get_env(?APP, key, "emqmessage"),
+  Keycon = "LINE:"++ClientId,
+  BinValue=list_to_binary(Value),
+  case emq_redis_hook_cli:q(["GET", Keycon]) of
+    {ok, BinValue} ->
+    	ok;
+    {error, Reason} ->
+      ?LOG(error, "send_redis_request_value edis get error: ~p", [Reason]), ok;
     {ok, _} ->
+      %?LOG(error, "Redis get ok _:~p",[Keycon]),
+      set_redis_client_value(Keycon, Value)
+
+  end.
+
+set_redis_client_value(Key, Value) ->
+ case emq_redis_hook_cli:q(["SET", Key, Value]) of
+    {ok, _} ->
+      % ?LOG(error, "Redis set ok _ key:~p value:~p ",[Key, Value]),i
       ok;
     {error, Reason} ->
-      ?LOG(error, "Redis lpush error: ~p", [Reason]), ok
+      ?LOG(error, "set_redis_client_value Redis set error: ~p", [Reason]), ok
+  end.
+
+add_redis_client_value(Key) ->
+  case string:tokens(binary_to_list(Key), "-") of
+	[Nsrsbh, Fjh] -> 
+  		%?LOG(error, "string tokens narsbh:~p fjh:~p ", [Nsrsbh,Fjh]),
+		KeyNsr = "CONNECTED:"++Nsrsbh,
+		set_redis_client_value(KeyNsr,Fjh);
+	_ -> 
+		?LOG(error, "add_redis_client_value tokerns err,the Key value is:~s \n",[Key])
   end.
 
 
