@@ -3,8 +3,8 @@ PROJECT_DESCRIPTION = EMQ Redis Hook Plugin
 PROJECT_VERSION = 2.3.11
 
 DEPS = eredis ecpool clique
-dep_eredis = git https://github.com/emqtt/eredis master
-dep_ecpool = git https://github.com/emqtt/ecpool master
+dep_eredis = git https://github.com/emqtt/eredis v1.0.9
+dep_ecpool = git https://github.com/emqtt/ecpool v0.3.0
 dep_clique = git https://github.com/emqtt/clique v0.3.10
 
 BUILD_DEPS = emqttd cuttlefish

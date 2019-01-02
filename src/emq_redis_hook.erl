@@ -274,11 +274,21 @@ set_redis_client_value(Key, Value) ->
   end.
 
 add_redis_client_value(Key) ->
-  case string:tokens(binary_to_list(Key), "-") of
+  case string:tokens(binary_to_list(Key), "/") of
 	[Nsrsbh, Fjh] -> 
   		%?LOG(error, "string tokens narsbh:~p fjh:~p ", [Nsrsbh,Fjh]),
 		KeyNsr = "CONNECTED:"++Nsrsbh,
-		set_redis_client_value(KeyNsr,Fjh);
+		BinFjh = list_to_binary(Fjh),
+		case emq_redis_hook_cli:q(["GET", KeyNsr]) of
+    			{ok, BinFjh} ->
+        			%?LOG(error, "add_redis_client_value no use to ring tokens narsbh:~p fjh:~p ", [Nsrsbh,Fjh]),
+				ok;
+    			{error, Reason} ->
+      				?LOG(error, "add_redis_client_value edis get error: ~p", [Reason]), ok;
+    			{ok, _} ->
+				%?LOG(error, "add_redis_client_value string tokens narsbh:~p fjh:~p ", [Nsrsbh,Fjh]),
+				set_redis_client_value(KeyNsr,Fjh)
+		end;
 	_ -> 
 		?LOG(error, "add_redis_client_value tokerns err,the Key value is:~s \n",[Key])
   end.
