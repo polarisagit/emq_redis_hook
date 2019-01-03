@@ -42,11 +42,15 @@ redis.hook.pool = 64
 
 redis.hook.database = 15
 
-##Redis password. Value: String .                                                                                                                                      ##If  set default values for password , not call AUTH cmd                                                                                    ##If want AUTH , modify the bug: eredis eredis_client.erl start_link need modify AUTH "Password" to AUTH ##Password for redis and codis3.X 
+##Redis password. Value: String . 
+
+##If  set default values for password , not call AUTH cmd
+
+##If want AUTH , modify the bug: eredis eredis_client.erl start_link need modify AUTH "Password" to AUTH Password for redis and codis3.X 
 
 redis.hook.password = 123
 
-##Redis message key.(connected and disconnected use “LINE:、CONNECTED: ” other use “emqmessage” ##)Value: String
+##Redis message key.(connected and disconnected use “LINE:、CONNECTED: ” other use “emqmessage” ) Value: String
 
 redis.hook.message.key = emqmessage
 
